@@ -2,7 +2,9 @@ import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./Pages/Home/Home";
 import Signin from "./Pages/User/Signin";
-// import Signup from "./Pages/User/Signup"; // Assuming you have a Signup component
+import SignUp from "./Pages/User/SignUp";
+import { useAuth } from "./context/AuthContextProvider";
+
 
 const router = createBrowserRouter([
   {
@@ -13,13 +15,15 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Signin />,
   },
-  // {
-  //   path: "/signup",
-  //   element: <Signup />,
-  // },
+  {
+    path: "/register",
+    element: <SignUp />,
+  },
 ]);
 
 function App() {
+  const {user}=useAuth();
+  console.log(user)
   return <RouterProvider router={router} />;
 }
 
