@@ -1,45 +1,44 @@
-import { YoutubeIcon, CheckCircle } from "lucide-react";
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { YoutubeIcon, CheckCircle } from "lucide-react";
 import { useAuth } from "../../context/AuthContextProvider";
-import axios from "axios";
-import { API_ENDPOINT } from "../../utils/AllExportWrapper";
+
 
 type Props = {};
 
 const Signin: React.FC<Props> = () => {
-  const { setUser } = useAuth();
+  const { login } = useAuth();
+  
+ 
+
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!username || !password) {
       setErrorMessage("Email and password are required.");
       setSuccessMessage("");
     } else {
       setErrorMessage(""); // Clear error if inputs are valid
-      axios
-        .post(`${API_ENDPOINT}/api/v0/user/login`, {
-          username,
-          password,
-        })
-        .then((response) => {
-          console.log(response.data.data.user);
-          // localStorage.setItem("USER",response.data.data.user)
-          // set to local storage.
-          // set user from local storage as global variable 
-          // then acess the user info
+      try {
+        const success = await login(username, password);
+        if (success) {
           setSuccessMessage("Login successful! Redirecting...");
-          // You might want to add a redirect here after a short delay
-          setTimeout(() => { window.location.href = "/"; }, 3000);
-        })
-        .catch((error) => {
-          console.log(error);
+          
+          setTimeout(() => {
+            window.location.href="/"
+           }, 3000);
+        } else {
           setErrorMessage("Login failed. Please check your credentials.");
           setSuccessMessage("");
-        });
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        setErrorMessage("An error occurred during login. Please try again.");
+        setSuccessMessage("");
+      }
     }
   };
 
@@ -79,12 +78,9 @@ const Signin: React.FC<Props> = () => {
           {errorMessage && <p className="text-red-500">{errorMessage}</p>}
           <div className="flex justify-between items-center text-sm">
             <span>
-              <a
-                href="/forgot-password"
-                className="text-blue-600 hover:underline"
-              >
+              <Link to="/forgot-password" className="text-blue-600 hover:underline">
                 Forgot password?
-              </a>
+              </Link>
             </span>
           </div>
 
