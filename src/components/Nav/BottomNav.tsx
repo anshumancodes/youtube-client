@@ -1,14 +1,14 @@
 import React from "react";
 import { useWindowSize } from "../../context/ResponsiveContext";
-import { Home } from "lucide-react";
+import { Home, UserCircle } from "lucide-react";
+import { useUserProfile } from "../../context/UserProfileContext";
 
-interface NavbarProps {
-  profileImg: string;
-}
 
-const BottomNav: React.FC<NavbarProps> = ({ profileImg }) => {
+
+const BottomNav= () => {
   const { isMobile } = useWindowSize();
-
+  const {profile, error, loading}=useUserProfile()
+   
   if (!isMobile) return null;
 
   return (
@@ -46,7 +46,7 @@ const BottomNav: React.FC<NavbarProps> = ({ profileImg }) => {
           }
           label="Videos"
         />
-        <ProfileButton profileImg={profileImg} />
+      {profile? (  <ProfileButton profileImg={profile.avatar} />): (<a className="flex flex-col" href="/login"><UserCircle/> you</a>)}
       </div>
     </nav>
   );
