@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Mic, Search } from "lucide-react";
+import { LucideBell, Mic, Search, UserCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContextProvider";
+import { useUserProfile } from "../../context/UserProfileContext";
 
 interface NavbarProps {
-  profileImg: string;
+  onToggleSidebar: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ profileImg }) => {
+const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { profile, error, loading } = useUserProfile(); // Access profile from context
 
   useEffect(() => {
     const handleResize = () => {
@@ -29,7 +33,10 @@ const Navbar: React.FC<NavbarProps> = ({ profileImg }) => {
   return (
     <>
       {!isMobile ? (
-        <DesktopNav profileImg={profileImg} />
+        <DesktopNav
+          profileImg={profile?.avatar || ""}
+          onToggleSidebar={onToggleSidebar}
+        />
       ) : isSearchOpen ? (
         <MobileSearchBar onClose={handleSearchToggle} />
       ) : (
@@ -39,10 +46,15 @@ const Navbar: React.FC<NavbarProps> = ({ profileImg }) => {
   );
 };
 
-const DesktopNav: React.FC<{ profileImg: string }> = ({ profileImg }) => (
-  <nav className="flex flex-row justify-between items-center w-full py-4 px-4 md:px-12">
+const DesktopNav: React.FC<{ profileImg: string; onToggleSidebar: () => void }> = ({
+  profileImg,
+  onToggleSidebar,
+}) => (
+  <nav className="flex flex-row justify-between items-center w-full py-4 px-4 md:px-4">
     <div className="flex gap-4 items-center">
-      <MenuButton />
+      <span onClick={onToggleSidebar}>
+        <MenuButton />
+      </span>
       <YouTubeLogo />
     </div>
 
@@ -52,17 +64,35 @@ const DesktopNav: React.FC<{ profileImg: string }> = ({ profileImg }) => (
     </div>
 
     <div className="hidden md:flex items-center gap-4">
-      <CreateButton />
-      <ProfileButton profileImg={profileImg} />
+      {profileImg ? (
+        <span className="flex flex-row items-center gap-3">
+          <CreateButton />
+          <LucideBell />
+          <ProfileButton profileImg={profileImg} />
+        </span>
+      ) : (
+        <SigninButton />
+      )}
     </div>
   </nav>
 );
 
+const SigninButton: React.FC = () => {
+  return (
+    <Link to="/login">
+      <button className="text-blue-600 font-medium rounded-[19px] outline-none border-gray-500 border flex items-center gap-1 text-center py-1 px-2">
+        Signin <UserCircle2 />
+      </button>
+    </Link>
+  );
+};
+
 const MobileNav: React.FC<{ onSearchClick: () => void }> = ({ onSearchClick }) => (
-  <nav className="flex flex-row justify-between w-full border">
+  <nav className="flex flex-row justify-between w-full border py-2">
     <div className="flex gap-4 items-center">
-      <MenuButton />
-      <YouTubeLogo />
+      <span className="pl-2">
+        <YouTubeLogo />
+      </span>
     </div>
 
     <div className="flex items-center">
@@ -81,12 +111,12 @@ const MobileSearchBar: React.FC<{ onClose: () => void }> = ({ onClose }) => (
   <div className="flex items-center w-full p-2">
     <button onClick={onClose} className="mr-2">
       <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
-        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
       </svg>
     </button>
-    <input 
-      type="search" 
-      placeholder="Search YouTube" 
+    <input
+      type="search"
+      placeholder="Search YouTube"
       className="flex-grow p-2 rounded-full border border-gray-300"
     />
   </div>
@@ -108,11 +138,7 @@ const MenuButton: React.FC = () => (
 );
 
 const YouTubeLogo: React.FC = () => (
-  <img
-    src="src/assets/youtube-logo.png"
-    alt="YouTube Logo"
-    width={100}
-  />
+  <img src="src/assets/youtube-logo.png" alt="YouTube Logo" width={100} />
 );
 
 const SearchBar: React.FC = () => (
@@ -121,11 +147,11 @@ const SearchBar: React.FC = () => (
       type="search"
       placeholder="Search"
       aria-label="Search"
-      className="w-full h-10 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-l-full focus:outline-none focus:border-blue-500"
+      className="w-full h-10 px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-l-full focus:outline-none "
     />
     <button
       aria-label="Search"
-      className="flex items-center justify-center h-10 px-6 text-sm font-medium text-gray-600 bg-gray-100 border border-l-0 border-gray-300 rounded-r-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      className="flex items-center justify-center h-10 px-6 text-sm font-medium text-gray-600 bg-gray-100 border border-l-0 border-gray-300 rounded-r-full hover:bg-gray-200 outline-none"
     >
       <Search size={20} />
     </button>
@@ -133,10 +159,7 @@ const SearchBar: React.FC = () => (
 );
 
 const VoiceSearchButton: React.FC = () => (
-  <button
-    aria-label="Voice search"
-    className="rounded-full p-2 ml-2 text-white bg-black hidden md:inline"
-  >
+  <button aria-label="Voice search" className="rounded-full p-2 ml-2 text-white bg-black hidden md:inline">
     <Mic size={20} />
   </button>
 );
@@ -157,15 +180,8 @@ const CreateButton: React.FC = () => (
 );
 
 const ProfileButton: React.FC<{ profileImg: string }> = ({ profileImg }) => (
-  <button
-    aria-label="Profile"
-    className="rounded-full w-8 h-8 overflow-hidden"
-  >
-    <img
-      src={profileImg}
-      alt=""
-      className="w-full h-full object-cover"
-    />
+  <button aria-label="Profile" className="rounded-full w-8 h-8 overflow-hidden">
+    <img src={profileImg} alt="" className="w-full h-full object-cover" />
   </button>
 );
 
