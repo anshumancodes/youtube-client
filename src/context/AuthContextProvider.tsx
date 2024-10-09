@@ -1,63 +1,74 @@
-// AuthContext.tsx
 import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from "react";
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
+import { useCookies } from "react-cookie";
 
-// Types
 interface UserType {
   username: string;
   email: string;
-  refreshToken:string;
-  // Add any other user properties you want to store
+  refreshToken: string;
 }
 
 interface AuthContextType {
   user: UserType | null;
-  login: (username : string, password: string) => Promise<boolean>;
+  token: string | null;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
-// Create axios instance
-const axiosInstance = axios.create({
+const axiosInstance: AxiosInstance = axios.create({
   baseURL: 'http://localhost:8000/api/v0/user',
-  withCredentials: true, // Important for sending and receiving cookies
+  withCredentials: true
 });
 
-// AuthContext
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// AuthProvider component
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthContextProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<UserType | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [cookies, setCookie, removeCookie] = useCookies(['accessToken']);
 
-  // Check for stored user on initial load
-  useEffect(() => {
+  const initializeAuth = useCallback(() => {
     const storedUser = localStorage.getItem('user');
+    const storedToken = cookies.accessToken || localStorage.getItem('token');
+
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
-  }, []);
 
-  // Login function
-  async function login(username: string, password: string): Promise<boolean> {
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, [cookies.accessToken]);
+
+  useEffect(() => {
+    initializeAuth();
+  }, [initializeAuth]);
+
+  const login = async (username: string, password: string): Promise<boolean> => {
     try {
       const response = await axiosInstance.post('/login', { username, password });
-      const data = response.data;
-  
+      const { data } = response;
+
       if (data.statusCode === 200) {
         const userData: UserType = {
           username: data.data.user.username,
           email: data.data.user.email,
-
-          refreshToken:data.data.user.refreshToken,
-
+          refreshToken: data.data.user.refreshToken,
         };
         setUser(userData);
+
+        const accessToken = data.data.user.accessToken;
+        setToken(accessToken);
+
         localStorage.setItem('user', JSON.stringify(userData));
+        setCookie('accessToken', accessToken, { path: '/', secure: true, sameSite: 'strict' });
+        localStorage.setItem('token', accessToken);
+
         return true;
       } else {
         throw new Error(data.message);
@@ -66,27 +77,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Login error:', error);
       return false;
     }
-  }
-  
-  
+  };
 
-  // Logout function
-  const logout = useCallback(async () => {
+  const logout = async (): Promise<void> => {
     try {
-      await axiosInstance.post('/logout');
-      setUser(null);
-      localStorage.removeItem('user');
+      const response = await axiosInstance.post('/logout');
+      if (response.data.statusCode === 200) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        removeCookie('accessToken', { path: '/' });
+        setUser(null);
+        setToken(null);
+      }
     } catch (error) {
       console.error('Logout error:', error);
     }
-  }, []);
+  };
 
-  // Authentication status
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!user && !!token;
 
-  // Context value
   const value: AuthContextType = {
     user,
+    token,
     login,
     logout,
     isAuthenticated,
@@ -99,7 +111,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// Custom hook to use the AuthContext
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
@@ -107,33 +118,5 @@ export function useAuth() {
   }
   return context;
 }
-
-// Axios interceptor for token refreshing
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const res = await axiosInstance.post('/refreshtoken');
-        if (res.data.statusCode === 200) {
-          // Cookies are automatically handled by the browser
-          return axiosInstance(originalRequest);
-        } else {
-          // Handle unsuccessful token refresh
-          console.error('Token refresh failed:', res.data.message);
-          // You might want to logout the user here
-          // await logout();
-        }
-      } catch (refreshError) {
-        console.error('Error refreshing token:', refreshError);
-        // You might want to logout the user here
-        // await logout();
-      }
-    }
-    return Promise.reject(error);
-  }
-);
 
 export { axiosInstance };
