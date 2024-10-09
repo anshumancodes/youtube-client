@@ -19,7 +19,7 @@ const ProfileDropdown = ({profileimg}: Props) => {
         onClick={toggleDropdown}
       >
         <img
-          src={profileimg} // replace with actual avatar source
+          src={profileimg} 
           alt="Profile Avatar"
           className="w-8 h-8 rounded-full"
         />
