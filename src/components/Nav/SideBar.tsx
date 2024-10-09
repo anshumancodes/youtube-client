@@ -1,5 +1,8 @@
 import React from "react";
 import { History, Home, ThumbsUp } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContextProvider";
+import { SigninButton } from "./Navbar";
 
 interface Subscription {
   id: number;
@@ -12,18 +15,34 @@ interface SideBarProps {
   subscriptions?: Subscription[];
 }
 
-const SideBar: React.FC<SideBarProps> = ({ isCollapsed, subscriptions = [] }) => {
+const SideBar: React.FC<SideBarProps> = ({
+  isCollapsed,
+  subscriptions = [],
+}) => {
+  const { user } = useAuth();
   return (
     <nav
-      className={`bg-gray-900 text-white h-screen overflow-y-auto transition-all duration-300 ${
+      className={`h-screen overflow-y-auto transition-all duration-300 ${
         isCollapsed ? "w-16" : "w-64"
       }`}
     >
       <div className={`px-2 ${isCollapsed ? "py-2" : "py-4"}`}>
         <div className="space-y-4">
-          <NavItem icon={<Home size={20} />} label="Home" isCollapsed={isCollapsed} />
-          <NavItem icon={<ShortsSVG />} label="Shorts" isCollapsed={isCollapsed} />
-          <NavItem icon={<SubscriptionsSVG />} label="Subscriptions" isCollapsed={isCollapsed} />
+         <Link to={"/"}> <NavItem
+            icon={<Home size={20} />}
+            label="Home"
+            isCollapsed={isCollapsed}
+          /></Link>
+          <NavItem
+            icon={<ShortsSVG />}
+            label="Shorts"
+            isCollapsed={isCollapsed}
+          />
+          <NavItem
+            icon={<SubscriptionsSVG />}
+            label="Subscriptions"
+            isCollapsed={isCollapsed}
+          />
         </div>
 
         {!isCollapsed && (
@@ -31,20 +50,51 @@ const SideBar: React.FC<SideBarProps> = ({ isCollapsed, subscriptions = [] }) =>
             <div className="border-t border-gray-700 my-4"></div>
 
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-400">You</h3>
-              <NavItem icon={<ChannelSVG />} label="Your channel" isCollapsed={isCollapsed} />
-              <NavItem icon={<History size={20} />} label="History" isCollapsed={isCollapsed} />
-              <NavItem icon={<ThumbsUp size={20} />} label="Liked videos" isCollapsed={isCollapsed} />
+              {user ? (
+                <>
+                  <h3 className="text-sm font-semibold px-3">You</h3>
+                  <Link to={`/${user.username}`}>
+                    <NavItem
+                      icon={<ChannelSVG />}
+                      label="Your channel"
+                      isCollapsed={isCollapsed}
+                    />
+                  </Link>
+                  <NavItem
+                    icon={<History size={20} />}
+                    label="History"
+                    isCollapsed={isCollapsed}
+                  />
+                  <NavItem
+                    icon={<ThumbsUp size={20} />}
+                    label="Liked videos"
+                    isCollapsed={isCollapsed}
+                  />
+                </>
+              ) : (
+                <div>
+                  <p>Sign in to like videos, comment, and subscribe.</p>
+                  <Link to="/login">
+                    <SigninButton />
+                  </Link>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-gray-700 my-4"></div>
 
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-400">Subscriptions</h3>
+              <h3 className="text-sm font-semibold ">Subscriptions</h3>
               {subscriptions.map((sub) => (
                 <NavItem
                   key={sub.id}
-                  icon={<img src={sub.url} alt={sub.name} className="w-6 h-6 rounded-full" />}
+                  icon={
+                    <img
+                      src={sub.url}
+                      alt={sub.name}
+                      className="w-6 h-6 rounded-full"
+                    />
+                  }
                   label={sub.name}
                   isCollapsed={isCollapsed}
                 />
@@ -57,13 +107,13 @@ const SideBar: React.FC<SideBarProps> = ({ isCollapsed, subscriptions = [] }) =>
   );
 };
 
-const NavItem: React.FC<{ icon: React.ReactNode; label: string; isCollapsed: boolean }> = ({
-  icon,
-  label,
-  isCollapsed,
-}) => (
+const NavItem: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  isCollapsed: boolean;
+}> = ({ icon, label, isCollapsed }) => (
   <div
-    className={`flex items-center py-2 px-3 rounded-lg hover:bg-gray-800 cursor-pointer ${
+    className={`flex items-center py-2 px-3 rounded-lg  cursor-pointer ${
       isCollapsed ? "justify-center" : "space-x-4"
     }`}
   >
