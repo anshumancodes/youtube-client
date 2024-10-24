@@ -17,7 +17,7 @@ const VideoActionBar = ({
   avatar 
 }: Props) => {
   return (
-    <div className="max-w-4xl w-full px-4 py-3 space-y-4">
+    <div className=" w-full px-1 space-y-4">
       {/* Video Title */}
       <div className="mb-4">
         <h1 className="text-xl font-semibold line-clamp-2">{title}</h1>
@@ -49,18 +49,18 @@ const VideoActionBar = ({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-gray-100 rounded-full">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-l-full hover:bg-gray-200">
+          <div className="flex items-center bg-gray-200 rounded-full">
+            <button className="flex items-center gap-2 px-4 py-2 rounded-l-full">
               <ThumbsUp size={20} />
               <span className="text-sm font-medium">Like</span>
             </button>
-            <div className="w-px h-6 bg-gray-300" />
-            <button className="flex items-center gap-2 px-4 py-2 rounded-r-full hover:bg-gray-200">
+            <span>|</span>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-r-full">
               <ThumbsDown size={20} />
             </button>
           </div>
           
-          <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 ">
             <Share2 size={20} />
             <span className="text-sm font-medium">Share</span>
           </button>
@@ -68,7 +68,7 @@ const VideoActionBar = ({
       </div>
 
       {/* Description */}
-      <div className="text-sm text-gray-800">
+      <div className="text-sm text-gray-800 px-2 py-4 rounded-lg bg-gray-100">
         <p className="line-clamp-2">{description}</p>
       </div>
     </div>
