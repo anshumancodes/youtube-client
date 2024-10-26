@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { YoutubeIcon, CheckCircle } from "lucide-react";
+import { CheckCircle,Youtube } from "lucide-react";
 import { useAuth } from "../../context/AuthContextProvider";
+
 
 const Signin: React.FC = () => {
   const { login } = useAuth();
@@ -41,12 +42,12 @@ const Signin: React.FC = () => {
   };
 
   return (
-    <div className="flex w-full h-screen justify-center items-center bg-gray-300">
-      <div className="bg-white p-8 rounded-md shadow-md w-[360px]">
-        <div className="text-center mb-6">
-          <YoutubeIcon className="text-red-600 mx-auto mb-2" size={48} />
-          <h1 className="text-2xl font-semibold text-gray-700">Sign in</h1>
-          <p className="text-gray-500 text-sm">to continue to YouTube</p>
+    <div className="flex w-full h-screen justify-center items-center">
+      <div className="bg-[#fff] px-[24px] py-[40px] text-[#212121] flex rounded-3xl flex-col w-[400px]">
+        <div className="flex flex-col items-center justify-center mb-6">
+         
+          <h1 className="text-3xl font-semibold text-gray-700">Sign in</h1>
+          <p className="text-gray-500 text-base font-normal mt-2">to continue to YouTube-client</p>
         </div>
 
         {successMessage && (
@@ -76,27 +77,17 @@ const Signin: React.FC = () => {
             required
           />
           {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-          <div className="flex justify-between items-center text-sm">
-            <Link to="/forgot-password" className="text-blue-600 hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-
-          <div className="flex justify-between mt-4">
-            <Link to="/register">
-              <button type="button" className="px-4 py-2 text-blue-600 hover:underline">
-                Create account
-              </button>
-            </Link>
-
-            <button
+          <div className="flex flex-col gap-2">
+          <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-[#212121] text-white rounded-md w-full"
               disabled={isLoading}
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </button>
+            <Link to={"/forgot-password"}><p className="text-[#4285F4] text-sm underline mt-2">forgot password ?</p></Link>
           </div>
+          <div className="flex gap-2 font-medium"><p>Dont have a account?</p><a href="/register" className="text-[#4285F4] text-base font-normal">Sign up Now</a></div>
         </form>
       </div>
     </div>
