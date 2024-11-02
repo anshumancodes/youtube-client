@@ -1,12 +1,15 @@
-import React from 'react';
-import { ThumbsUp, ThumbsDown, Share2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { ThumbsUp, ThumbsDown, Share2 ,LucideBell,ChevronDown, Divide} from 'lucide-react';
+import { useWindowSize } from '../../../context/ResponsiveContext';
 
 type Props = {
   title: string,
   description: string,
   channelName: string,
   subscribers: number,
-  avatar: string
+  avatar: string,
+  views: number,
+  published: Date,
 };
 
 const VideoActionBar = ({ 
@@ -14,8 +17,18 @@ const VideoActionBar = ({
   description, 
   channelName, 
   subscribers, 
-  avatar 
+  avatar,
+  views,
+  published
 }: Props) => {
+
+  const [subscribe,setSubscribed]=useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const handlesubscription=()=>{
+    setSubscribed(!subscribe);
+
+  }
+  const {isMobile}=useWindowSize();
   return (
     <div className=" w-full px-1 space-y-4">
       {/* Video Title */}
@@ -24,11 +37,11 @@ const VideoActionBar = ({
       </div>
 
       {/* Action Bar */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 pb-3 border-b border-gray-200">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 pb-3 ">
         {/* Channel Info */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
               <img 
                 src={avatar} 
                 alt={channelName}
@@ -37,19 +50,20 @@ const VideoActionBar = ({
             </div>
             <div>
               <h2 className="font-medium">{channelName}</h2>
-              <p className="text-sm text-gray-600">
+              <p className="text-base text-gray-500">
                 {subscribers?.toLocaleString()} subscribers
               </p>
             </div>
           </div>
-          <button className="bg-black text-white px-4 py-2 rounded-full hover:bg-gray-800">
-            Subscribe
-          </button>
+
+          <button className=" bg-white text-black px-4 py-2 rounded-full" onClick={handlesubscription}>
+            {subscribe ?<p className='flex gap-1 items-center justify-center'><LucideBell/> subscribed</p>:"Subscribe"}
+          </button >
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-gray-200 rounded-full">
+          <div className="flex items-center bg-transparent greyish-filter-bg text-[#f1f1f1] rounded-full">
             <button className="flex items-center gap-2 px-4 py-2 rounded-l-full">
               <ThumbsUp size={20} />
               <span className="text-sm font-medium">Like</span>
@@ -60,7 +74,7 @@ const VideoActionBar = ({
             </button>
           </div>
           
-          <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-200 ">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-full greyish-filter-bg text-[#f1f1f1]">
             <Share2 size={20} />
             <span className="text-sm font-medium">Share</span>
           </button>
@@ -68,9 +82,41 @@ const VideoActionBar = ({
       </div>
 
       {/* Description */}
-      <div className="text-sm text-gray-800 px-2 py-4 rounded-lg bg-gray-100">
-        <p className="line-clamp-2">{description}</p>
+      
+      <div className="text-base text-[#f1f1f1] px-1 py-4 rounded-lg mb-4  greyish-filter-bg ">
+      <div className="flex flex-row gap-4 font-medium px-2">
+        <p className="flex gap-1">
+          {views} <a href="" className="font-normal">views</a>
+        </p>
+        <p>{new Date(published).toDateString()}</p>
       </div>
+      
+      <div className="px-2 mt-2">
+        {isExpanded ? (
+          <p>{description}</p>
+        ) : (
+          <p className="relative">
+            <span className="line-clamp-2">{description}</span>
+            {description.length > 5 && (
+              <button
+                onClick={() => setIsExpanded(true)}
+                className="text-blue-400 hover:text-blue-300 ml-1 cursor-pointer"
+              >
+                ...more
+              </button>
+            )}
+          </p>
+        )}
+        {isExpanded && (
+          <button
+            onClick={() => setIsExpanded(false)}
+            className="text-blue-400 hover:text-blue-300 mt-1 cursor-pointer"
+          >
+            Show less
+          </button>
+        )}
+      </div>
+    </div>
     </div>
   );
 };
