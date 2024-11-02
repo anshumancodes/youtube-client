@@ -2,6 +2,7 @@ import React from 'react';
 import { EllipsisVertical } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+
 type Props = {
   title: string;
   channelName: string;
@@ -14,10 +15,24 @@ type Props = {
 };
 
 function VideoCard({ title, channelName, thumbnail, views, duration, createdAt ,channelpfp,videoid }: Props) {
+  const formatDuration = (duration) => {
+    const hours = Math.floor(duration / 3600);
+    const minutes = Math.floor((duration % 3600) / 60);
+    const seconds = Math.floor(duration % 60);
+  
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else if (minutes > 0) {
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+      return `0.${seconds}s`;
+    }
+  };
+  
   return (
-    <div className="w-[360px]">
+    <div className="md:w-[360px]">
       <Link to={`/watch/${videoid}`}>
-      <div className="flex flex-col gap-2 rounded-lg overflow-hidden hover:cursor-pointer hover:bg-gray-100 transition duration-200">
+      <div className="flex flex-col gap-2 md:rounded-lg overflow-hidden hover:cursor-pointer">
         {/* Video Thumbnail */}
         <div className="relative">
           <img
@@ -27,7 +42,7 @@ function VideoCard({ title, channelName, thumbnail, views, duration, createdAt ,
           />
           {/* Video duration overlay */}
           <span className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 rounded">
-            {duration.toFixed(2)} {/* Display video duration */}
+            {formatDuration(duration)} {/* Display video duration */}
           </span>
         </div>
         
@@ -45,7 +60,7 @@ function VideoCard({ title, channelName, thumbnail, views, duration, createdAt ,
           {/* Title, Channel, Views */}
           <div className="flex flex-col w-full">
             <div className="flex justify-between items-start">
-              <h3 className="text-sm font-bold leading-tight line-clamp-2">
+              <h3 className="text-xl font-medium leading-tight line-clamp-2">
                 {title}
               </h3>
               <EllipsisVertical className="cursor-pointer" />
