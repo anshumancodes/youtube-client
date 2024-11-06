@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { LogOut } from 'lucide-react';
 
 type Props = {
     profileimg:string;
@@ -28,7 +29,7 @@ const ProfileDropdown = ({profileimg}: Props) => {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
+        <div className="absolute right-0 mt-2 w-48 bg-inherit border-gray-400 border rounded-md shadow-lg z-20">
           <ul className="py-2">
             <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
               <a href="/:username">Your Channel</a>
@@ -39,8 +40,8 @@ const ProfileDropdown = ({profileimg}: Props) => {
             <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
               <a href="/watch-history">Watch History</a>
             </li>
-            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-              <a href="/sign-out">Sign Out</a>
+            <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex gap-2  ">
+              <a href="/sign-out">Sign Out </a><LogOut/>
             </li>
           </ul>
         </div>
